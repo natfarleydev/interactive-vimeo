@@ -23,6 +23,16 @@ v = vimeo.VimeoClient(ACCESS_TOKEN, CLIENT_ID, CLIENT_SECRET)
 favourite_channel = getattr(v.channels,
                             str(Config.get('Main','favourite_channel_uri')))
 
+all_my_videos = []
+
+def fillListWithAllMyVideos(list_of_videos):
+    """Function to fill list with all users videos (destructive)."""
+    resp = vc.me.videos()
+    list_of_videos = resp['body']['data']
+
+    while resp.next()['body']['page'] == resp['body']['page'] + 1:
+        resp = resp.next()
+        list_of_videos.extend(resp['body']['data'])
 
 def allMyVideos():
     """An iteratable list of all my videos."""
@@ -105,3 +115,4 @@ def addInBSL():
             print 'Adding \'(in BSL)\' to ' + tmpname
             tmpname = tmpname + ' (in BSL)'
             renameVideo(tmpuri,tmpname)
+
