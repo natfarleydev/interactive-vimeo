@@ -1,3 +1,6 @@
+# TODO
+# - Get a handle on all these functions by generalising what needs it
+# - create if __name__ __main__ block for loading user configurations
 
 import ConfigParser
 import os
@@ -9,7 +12,7 @@ Config.read(os.path.expanduser('~/.interactive-vimeo'))
 # Config file should look like
 # [Main]
 # access_token = a97609a76a876a987a69a87a69a876a987a78a3a
-# favourite_channel_uri = 563335
+# favourite_group_uri = 563335
 
 #Set up the credentials
 ACCESS_TOKEN = Config.get('Main','access_token')
@@ -20,8 +23,8 @@ import vimeo
 
 v = vimeo.VimeoClient(ACCESS_TOKEN, CLIENT_ID, CLIENT_SECRET)
 
-favourite_channel = getattr(v.channels,
-                            str(Config.get('Main','favourite_channel_uri')))
+favourite_group = getattr(v.groups,
+                            str(Config.get('Main','favourite_group_uri')))
 
 all_my_videos = []
 
@@ -39,18 +42,18 @@ def allMyVideos():
     return v.me.videos(per_page=9001)['body']['data']
 
 # TODO fix the page over 9000 thing to the recommended solution
-def putAllVideosInChannel():
-    """Put all videos in favourite_channel channel (if not already present)."""
-    already_in_channel = []
-    for channel_video in favourite_channel.videos(per_page=9001)['body']['data']:
-        already_in_channel.append(channel_video['uri'].split('/')[-1:][0])
-    print already_in_channel
+def putAllVideosInGroup():
+    """Put all videos in favourite_group group (if not already present)."""
+    already_in_group = []
+    for group_video in favourite_group.videos(per_page=9001)['body']['data']:
+        already_in_group.append(group_video['uri'].split('/')[-1:][0])
+    print already_in_group
 
     for i in allMyVideos():
         tmpuri = i['uri'].split('/')[-1:][0]
-        if not tmpuri in already_in_channel:
-            print "adding " + i['name'] + " to channel."
-            favourite_channel.videos.put(tmpuri)
+        if not tmpuri in already_in_group:
+            print "adding " + i['name'] + " to group."
+            favourite_group.videos.put(tmpuri)
 
 def listOfAllMyVideos():
     """A human readable list of all my videos."""
@@ -75,6 +78,11 @@ def capitaliseAllVideos():
 
 import re
 def geturi(pattern):
+    # TODO allow this to take custom list
+    # if no list is given, do it for all user videos
+    # (that means finding out how to do default values)
+    # (which I think is done by value=default)
+    # (better check though)
     """Get a list of uri's based on a regular expression"""
     match_list = []
     for i in allMyVideos():
